@@ -1,9 +1,7 @@
 import matplotlib.pyplot as plt
 from pandas import DataFrame as df
 from pandas_confusion import BinaryConfusionMatrix
-import numpy as np
 from seaborn import heatmap
-import os
 
 def heatmap_confusion_matrix(actual_label, pred_label, output_folder, plot_title):
     """  Plot Confusion Matrix using Seaborn's Heatmap.
@@ -28,8 +26,10 @@ def heatmap_confusion_matrix(actual_label, pred_label, output_folder, plot_title
     result : Confusion matrix plot with test result statistics
             Saved plot file to output_folder
     """
-    
+    # Create confusion matrix
     binary_confusion_matrix = BinaryConfusionMatrix(actual_label, pred_label)
+    
+    # Result statistics from the confusion matrix
     stats = binary_confusion_matrix.stats()
     pos_real = stats['P']
     neg_real = stats['N']
@@ -45,6 +45,7 @@ def heatmap_confusion_matrix(actual_label, pred_label, output_folder, plot_title
     F1_score = round(stats['F1_score'], 2) #harmonic mean of recall and precision
     ACC = round(stats['ACC'], 2)
     
+    # Confusion matrix for display
     cm = np.array([[TN,FP], [FN,TP]])
     """
         TN  FP
@@ -53,14 +54,16 @@ def heatmap_confusion_matrix(actual_label, pred_label, output_folder, plot_title
     df_cm = df(cm, index = ['{}  \nDecoy'.format(neg_real), '%d  \nActive'%(pos_real)], columns = ['Decoy\n%d'%(neg_pred), 'Active\n%d'%(pos_pred)])
     plot = plt.figure(figsize = (6, 6))
     plt.rcParams['font.size'] = 10
-    plt.rcParams['xtick.top'] = False
-    plt.rcParams['xtick.labeltop'] = False
-    heatmap(df_cm, annot = True, fmt = 'd', annot_kws={"size":14})
     plt.title("Accuracy : {:.2f}   TPR : {:.2f}\nPrecision : {:.2f}   TNR : {:.2f}   F1-Score : {:.2f}".format(ACC, TPR, PPV, TNR, F1_score), loc = 'left', fontsize = 12)
     plt.suptitle(plot_title, y = 0.95, fontsize= 14)
     plt.xlabel('Predicted Label')
     plt.ylabel('Actual Label')
     plt.subplots_adjust(top = 0.8)
+    
+    # plot heatmap
+    heatmap(df_cm, annot = True, fmt = 'd', annot_kws={"size":14})
+    
+    # save plot and display it
     plot.savefig('{}/test_result_confusion_matrix.png'.format(output_folder))
     plt.show()
     plt.close()
@@ -69,7 +72,8 @@ def heatmap_confusion_matrix(actual_label, pred_label, output_folder, plot_title
 """
 Examples
 --------
-
+>>>> import numpy as np
+>>>> import os
 >>>> reals = np.array([1,1,1,1,1,1,1,1,1,1, #10
                 0,0,0,0,0,0,0,0,0, #9
                 0,0, #2
